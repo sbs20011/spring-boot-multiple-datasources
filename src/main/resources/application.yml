@@ -1,0 +1,24 @@
+server:
+  port: 8080
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /test_db
+      
+  db1:
+    datasource:
+      hikari:
+        driver-class-name: org.h2.Driver
+        #jdbc-url: jdbc:h2:file:~/test_db
+        jdbc-url: jdbc:h2:mem:test_db
+        username: test
+        password: 1234
+  db2:
+    datasource:
+      hikari:
+        driver-class-name: org.h2.Driver
+        #jdbc-url: jdbc:h2:file:~/test_db2
+        jdbc-url: jdbc:h2:mem:test_db2
+        username: test
+        password: 1234
