@@ -12,6 +12,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.init.DataSourceInitializer;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -23,6 +28,18 @@ public class Db2MyBatisConfig {
 	@Autowired
 	private ApplicationContext applicationContext;
 
+	@Bean
+	public DataSourceInitializer db2DataSourceInitializer(@Qualifier("db2DataSource") DataSource datasource) {
+		ResourceDatabasePopulator resourceDatabasePopulator = new ResourceDatabasePopulator();
+		resourceDatabasePopulator.addScript(new ClassPathResource("schema-h22.sql"));
+		resourceDatabasePopulator.addScript(new ClassPathResource("data-h22.sql"));
+
+		DataSourceInitializer dataSourceInitializer = new DataSourceInitializer();
+		dataSourceInitializer.setDataSource(datasource);
+		dataSourceInitializer.setDatabasePopulator(resourceDatabasePopulator);
+		return dataSourceInitializer;
+	}
+	
 	@Bean(name="db2HikariConfig")
 	@ConfigurationProperties(prefix = "spring.db2.datasource.hikari")
 	public HikariConfig db2HikariConfig() {
@@ -46,5 +63,10 @@ public class Db2MyBatisConfig {
 	@Bean(name = "db2SqlSessionTemplate")
 	public SqlSessionTemplate sqlSession(SqlSessionFactory sqlSessionFactory) {
 		return new SqlSessionTemplate(sqlSessionFactory);
+	}
+	
+	@Bean("db2TransactionManager")
+	public PlatformTransactionManager transactionManager() {
+		return new DataSourceTransactionManager(db2DataSource());
 	}
 }
